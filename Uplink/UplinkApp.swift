@@ -369,7 +369,7 @@ struct ServerMenuCommands: Commands {
 
             Button(String(localized: "Add Server…")) {
                 appState.pendingAddServer = true
-                NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+                appState.openSettingsRequested = true
             }
 
             Button(String(localized: "Server Settings…")) {
@@ -377,7 +377,7 @@ struct ServerMenuCommands: Commands {
                     appState.pendingSettingsServerId = activeId
                     appState.pendingSettingsTab = .connection
                 }
-                NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+                appState.openSettingsRequested = true
             }
             .disabled(!appState.isConnected)
         }

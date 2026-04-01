@@ -131,6 +131,12 @@ struct ContentView: View {
         .onChange(of: appState.pendingTorrentFileData) { _, newValue in
             if newValue != nil { appState.showingAddTorrent = true }
         }
+        .onChange(of: appState.openSettingsRequested) { _, requested in
+            if requested {
+                appState.openSettingsRequested = false
+                openSettings()
+            }
+        }
         .dropDestination(for: URL.self) { urls, _ in
             handleDroppedURLs(urls)
             return true

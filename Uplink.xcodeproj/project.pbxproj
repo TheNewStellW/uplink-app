@@ -31,9 +31,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		551683AE2F7BF8980031E58C /* Transmission Remote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Transmission Remote.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		551683BD2F7BF8990031E58C /* Transmission RemoteTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Transmission RemoteTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		551683C72F7BF8990031E58C /* Transmission RemoteUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Transmission RemoteUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		551683AE2F7BF8980031E58C /* Uplink.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Uplink.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		551683BD2F7BF8990031E58C /* UplinkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UplinkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		551683C72F7BF8990031E58C /* UplinkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UplinkUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		551683DA2F7BF9760031E58C /* claude.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = claude.md; sourceTree = "<group>"; };
 		551683DC2F7BF9EE0031E58C /* ARCHITECTURE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ARCHITECTURE.md; sourceTree = "<group>"; };
 		551683DE2F7BF9EE0031E58C /* PROGRESS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PROGRESS.md; sourceTree = "<group>"; };
@@ -41,19 +41,19 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		551683B02F7BF8980031E58C /* Transmission Remote */ = {
+		551683B02F7BF8980031E58C /* Uplink */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Transmission Remote";
+			path = Uplink;
 			sourceTree = "<group>";
 		};
-		551683C02F7BF8990031E58C /* Transmission RemoteTests */ = {
+		551683C02F7BF8990031E58C /* UplinkTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Transmission RemoteTests";
+			path = UplinkTests;
 			sourceTree = "<group>";
 		};
-		551683CA2F7BF8990031E58C /* Transmission RemoteUITests */ = {
+		551683CA2F7BF8990031E58C /* UplinkUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Transmission RemoteUITests";
+			path = UplinkUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -87,9 +87,9 @@
 			isa = PBXGroup;
 			children = (
 				551683DA2F7BF9760031E58C /* claude.md */,
-				551683B02F7BF8980031E58C /* Transmission Remote */,
-				551683C02F7BF8990031E58C /* Transmission RemoteTests */,
-				551683CA2F7BF8990031E58C /* Transmission RemoteUITests */,
+				551683B02F7BF8980031E58C /* Uplink */,
+				551683C02F7BF8990031E58C /* UplinkTests */,
+				551683CA2F7BF8990031E58C /* UplinkUITests */,
 				551683AF2F7BF8980031E58C /* Products */,
 				551683DC2F7BF9EE0031E58C /* ARCHITECTURE.md */,
 				551683DE2F7BF9EE0031E58C /* PROGRESS.md */,
@@ -100,9 +100,9 @@
 		551683AF2F7BF8980031E58C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				551683AE2F7BF8980031E58C /* Transmission Remote.app */,
-				551683BD2F7BF8990031E58C /* Transmission RemoteTests.xctest */,
-				551683C72F7BF8990031E58C /* Transmission RemoteUITests.xctest */,
+				551683AE2F7BF8980031E58C /* Uplink.app */,
+				551683BD2F7BF8990031E58C /* UplinkTests.xctest */,
+				551683C72F7BF8990031E58C /* UplinkUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -110,9 +110,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		551683AD2F7BF8980031E58C /* Transmission Remote */ = {
+		551683AD2F7BF8980031E58C /* Uplink */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 551683D12F7BF8990031E58C /* Build configuration list for PBXNativeTarget "Transmission Remote" */;
+			buildConfigurationList = 551683D12F7BF8990031E58C /* Build configuration list for PBXNativeTarget "Uplink" */;
 			buildPhases = (
 				551683AA2F7BF8980031E58C /* Sources */,
 				551683AB2F7BF8980031E58C /* Frameworks */,
@@ -123,18 +123,18 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				551683B02F7BF8980031E58C /* Transmission Remote */,
+				551683B02F7BF8980031E58C /* Uplink */,
 			);
-			name = "Transmission Remote";
+			name = Uplink;
 			packageProductDependencies = (
 			);
 			productName = "Transmission Remote";
-			productReference = 551683AE2F7BF8980031E58C /* Transmission Remote.app */;
+			productReference = 551683AE2F7BF8980031E58C /* Uplink.app */;
 			productType = "com.apple.product-type.application";
 		};
-		551683BC2F7BF8990031E58C /* Transmission RemoteTests */ = {
+		551683BC2F7BF8990031E58C /* UplinkTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 551683D42F7BF8990031E58C /* Build configuration list for PBXNativeTarget "Transmission RemoteTests" */;
+			buildConfigurationList = 551683D42F7BF8990031E58C /* Build configuration list for PBXNativeTarget "UplinkTests" */;
 			buildPhases = (
 				551683B92F7BF8990031E58C /* Sources */,
 				551683BA2F7BF8990031E58C /* Frameworks */,
@@ -146,18 +146,18 @@
 				551683BF2F7BF8990031E58C /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				551683C02F7BF8990031E58C /* Transmission RemoteTests */,
+				551683C02F7BF8990031E58C /* UplinkTests */,
 			);
-			name = "Transmission RemoteTests";
+			name = UplinkTests;
 			packageProductDependencies = (
 			);
 			productName = "Transmission RemoteTests";
-			productReference = 551683BD2F7BF8990031E58C /* Transmission RemoteTests.xctest */;
+			productReference = 551683BD2F7BF8990031E58C /* UplinkTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		551683C62F7BF8990031E58C /* Transmission RemoteUITests */ = {
+		551683C62F7BF8990031E58C /* UplinkUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 551683D72F7BF8990031E58C /* Build configuration list for PBXNativeTarget "Transmission RemoteUITests" */;
+			buildConfigurationList = 551683D72F7BF8990031E58C /* Build configuration list for PBXNativeTarget "UplinkUITests" */;
 			buildPhases = (
 				551683C32F7BF8990031E58C /* Sources */,
 				551683C42F7BF8990031E58C /* Frameworks */,
@@ -169,13 +169,13 @@
 				551683C92F7BF8990031E58C /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				551683CA2F7BF8990031E58C /* Transmission RemoteUITests */,
+				551683CA2F7BF8990031E58C /* UplinkUITests */,
 			);
-			name = "Transmission RemoteUITests";
+			name = UplinkUITests;
 			packageProductDependencies = (
 			);
 			productName = "Transmission RemoteUITests";
-			productReference = 551683C72F7BF8990031E58C /* Transmission RemoteUITests.xctest */;
+			productReference = 551683C72F7BF8990031E58C /* UplinkUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -201,7 +201,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 551683A92F7BF8980031E58C /* Build configuration list for PBXProject "Transmission Remote" */;
+			buildConfigurationList = 551683A92F7BF8980031E58C /* Build configuration list for PBXProject "Uplink" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -215,9 +215,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				551683AD2F7BF8980031E58C /* Transmission Remote */,
-				551683BC2F7BF8990031E58C /* Transmission RemoteTests */,
-				551683C62F7BF8990031E58C /* Transmission RemoteUITests */,
+				551683AD2F7BF8980031E58C /* Uplink */,
+				551683BC2F7BF8990031E58C /* UplinkTests */,
+				551683C62F7BF8990031E58C /* UplinkUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -277,12 +277,12 @@
 /* Begin PBXTargetDependency section */
 		551683BF2F7BF8990031E58C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 551683AD2F7BF8980031E58C /* Transmission Remote */;
+			target = 551683AD2F7BF8980031E58C /* Uplink */;
 			targetProxy = 551683BE2F7BF8990031E58C /* PBXContainerItemProxy */;
 		};
 		551683C92F7BF8990031E58C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 551683AD2F7BF8980031E58C /* Transmission Remote */;
+			target = 551683AD2F7BF8980031E58C /* Uplink */;
 			targetProxy = 551683C82F7BF8990031E58C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -435,6 +435,7 @@
 				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Uplink/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Uplink;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -442,7 +443,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.9.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.stelleton.Uplink;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -480,6 +481,7 @@
 				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SELECTED_FILES = readwrite;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Uplink/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Uplink;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -487,7 +489,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.9.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.stelleton.Uplink;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -517,7 +519,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Transmission Remote.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Transmission Remote";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Uplink.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Uplink";
 			};
 			name = Debug;
 		};
@@ -538,7 +540,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Transmission Remote.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Transmission Remote";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Uplink.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Uplink";
 			};
 			name = Release;
 		};
@@ -583,7 +585,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		551683A92F7BF8980031E58C /* Build configuration list for PBXProject "Transmission Remote" */ = {
+		551683A92F7BF8980031E58C /* Build configuration list for PBXProject "Uplink" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				551683CF2F7BF8990031E58C /* Debug */,
@@ -592,7 +594,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		551683D12F7BF8990031E58C /* Build configuration list for PBXNativeTarget "Transmission Remote" */ = {
+		551683D12F7BF8990031E58C /* Build configuration list for PBXNativeTarget "Uplink" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				551683D22F7BF8990031E58C /* Debug */,
@@ -601,7 +603,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		551683D42F7BF8990031E58C /* Build configuration list for PBXNativeTarget "Transmission RemoteTests" */ = {
+		551683D42F7BF8990031E58C /* Build configuration list for PBXNativeTarget "UplinkTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				551683D52F7BF8990031E58C /* Debug */,
@@ -610,7 +612,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		551683D72F7BF8990031E58C /* Build configuration list for PBXNativeTarget "Transmission RemoteUITests" */ = {
+		551683D72F7BF8990031E58C /* Build configuration list for PBXNativeTarget "UplinkUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				551683D82F7BF8990031E58C /* Debug */,

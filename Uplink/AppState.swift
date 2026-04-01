@@ -160,6 +160,10 @@ final class AppState {
     /// When true, the Settings window should create a new server entry when it opens.
     var pendingAddServer: Bool = false
 
+    /// When true, a view with access to `@Environment(\.openSettings)` should open Settings.
+    /// Set by Commands structs that cannot access the environment directly.
+    var openSettingsRequested: Bool = false
+
     /// Pending magnet URL to add (set by onOpenURL or drag-and-drop).
     var pendingMagnetURL: String?
 
