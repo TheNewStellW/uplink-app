@@ -11,6 +11,9 @@
 		551683DD2F7BF9EE0031E58C /* ARCHITECTURE.md in Resources */ = {isa = PBXBuildFile; fileRef = 551683DC2F7BF9EE0031E58C /* ARCHITECTURE.md */; };
 		551683DF2F7BF9EE0031E58C /* PROGRESS.md in Resources */ = {isa = PBXBuildFile; fileRef = 551683DE2F7BF9EE0031E58C /* PROGRESS.md */; };
 		551683E12F7BF9EF0031E58C /* UX.md in Resources */ = {isa = PBXBuildFile; fileRef = 551683E02F7BF9EF0031E58C /* UX.md */; };
+		5516842D2F7DE4B30031E58C /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 5516842C2F7DE4B30031E58C /* LICENSE */; };
+		5516842E2F7DE4B30031E58C /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 5516842C2F7DE4B30031E58C /* LICENSE */; };
+		5516842F2F7DE4B30031E58C /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 5516842C2F7DE4B30031E58C /* LICENSE */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +41,7 @@
 		551683DC2F7BF9EE0031E58C /* ARCHITECTURE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ARCHITECTURE.md; sourceTree = "<group>"; };
 		551683DE2F7BF9EE0031E58C /* PROGRESS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PROGRESS.md; sourceTree = "<group>"; };
 		551683E02F7BF9EF0031E58C /* UX.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = UX.md; sourceTree = "<group>"; };
+		5516842C2F7DE4B30031E58C /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -86,6 +90,7 @@
 		551683A52F7BF8980031E58C = {
 			isa = PBXGroup;
 			children = (
+				5516842C2F7DE4B30031E58C /* LICENSE */,
 				551683DA2F7BF9760031E58C /* claude.md */,
 				551683B02F7BF8980031E58C /* Uplink */,
 				551683C02F7BF8990031E58C /* UplinkTests */,
@@ -228,6 +233,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				551683DB2F7BF9780031E58C /* claude.md in Resources */,
+				5516842F2F7DE4B30031E58C /* LICENSE in Resources */,
 				551683DD2F7BF9EE0031E58C /* ARCHITECTURE.md in Resources */,
 				551683E12F7BF9EF0031E58C /* UX.md in Resources */,
 				551683DF2F7BF9EE0031E58C /* PROGRESS.md in Resources */,
@@ -238,6 +244,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5516842E2F7DE4B30031E58C /* LICENSE in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -245,6 +252,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5516842D2F7DE4B30031E58C /* LICENSE in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
