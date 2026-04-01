@@ -1,0 +1,21 @@
+# Xcode user data
+xcuserdata/
+*.xcuserstate
+
+# Build
+DerivedData/
+build/
+
+# macOS
+.DS_Store
+
+# SPM
+.swiftpm/xcode/package.xcworkspace/
+.swiftpm/configuration/
+
+# Claude AI instructions
+claude.md
+CLAUDE.md
+ARCHITECTURE.md
+PROGRESS.md
+UX.md
