@@ -59,11 +59,14 @@ final class AppState {
         return torrents.first { $0.id == id }
     }
 
-    /// Sorted unique labels across all torrents.
-    var uniqueLabels: [String] {
-        let allLabels = torrents.flatMap(\.labels)
-        return Array(Set(allLabels)).sorted { $0.localizedStandardCompare($1) == .orderedAscending }
-    }
+    /// Sorted unique labels across all torrents (cached, rebuilt when torrents change).
+    private(set) var uniqueLabels: [String] = []
+
+    /// Cached sidebar filter counts, rebuilt when torrents change.
+    private(set) var filterCounts: [TorrentFilter: Int] = [:]
+
+    /// Cached label counts, rebuilt when torrents change.
+    private(set) var labelCounts: [String: Int] = [:]
 
     /// Torrents filtered by sidebar, search, and label, without sorting applied.
     /// Used as the base for both list and table display modes.
@@ -317,6 +320,7 @@ final class AppState {
         connectionStatus = .disconnected
         errorMessage = nil
         showAuthenticationError = false
+        rebuildCachedCounts()
     }
 
     // MARK: - Polling
@@ -424,7 +428,14 @@ final class AppState {
         do {
             let fetched = try await client.getTorrents()
             checkForCompletedTorrents(fetched)
-            torrents = fetched
+
+            // Only reassign if data actually changed, to avoid unnecessary
+            // @Observable notifications that trigger SwiftUI recomputation.
+            if !torrentsMatch(torrents, fetched) {
+                torrents = fetched
+                rebuildCachedCounts()
+            }
+
             errorMessage = nil
             consecutiveFailures = 0
 
@@ -715,6 +726,57 @@ final class AppState {
             newStates[torrent.id] = torrent.percentDone
         }
         previousCompletionStates = newStates
+    }
+
+    // MARK: - Torrent Diff & Cached Counts
+
+    /// Fast comparison of two torrent arrays by checking volatile fields only.
+    /// Avoids full Equatable synthesis on Torrent (which includes large arrays
+    /// like files, peers, and trackerStats that are expensive to compare).
+    private func torrentsMatch(_ old: [Torrent], _ new: [Torrent]) -> Bool {
+        guard old.count == new.count else { return false }
+        for i in old.indices {
+            let a = old[i]
+            let b = new[i]
+            guard a.id == b.id,
+                  a.status == b.status,
+                  a.percentDone == b.percentDone,
+                  a.rateDownload == b.rateDownload,
+                  a.rateUpload == b.rateUpload,
+                  a.uploadRatio == b.uploadRatio,
+                  a.eta == b.eta,
+                  a.error == b.error,
+                  a.peersConnected == b.peersConnected,
+                  a.peersSendingToUs == b.peersSendingToUs,
+                  a.peersGettingFromUs == b.peersGettingFromUs,
+                  a.queuePosition == b.queuePosition,
+                  a.downloadedEver == b.downloadedEver,
+                  a.uploadedEver == b.uploadedEver,
+                  a.name == b.name,
+                  a.labels == b.labels,
+                  a.downloadDir == b.downloadDir
+            else { return false }
+        }
+        return true
+    }
+
+    /// Rebuilds the cached sidebar filter counts, label counts, and unique labels.
+    /// Called only when the torrents array actually changes.
+    private func rebuildCachedCounts() {
+        var counts: [TorrentFilter: Int] = [:]
+        for filter in TorrentFilter.allCases {
+            counts[filter] = torrents.filter { filter.matches($0) }.count
+        }
+        filterCounts = counts
+
+        var labels: [String: Int] = [:]
+        for torrent in torrents {
+            for label in torrent.labels {
+                labels[label, default: 0] += 1
+            }
+        }
+        labelCounts = labels
+        uniqueLabels = labels.keys.sorted { $0.localizedStandardCompare($1) == .orderedAscending }
     }
 
     /// Sends a local notification for a completed torrent.

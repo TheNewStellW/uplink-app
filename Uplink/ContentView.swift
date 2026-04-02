@@ -16,12 +16,13 @@ struct ContentView: View {
     @State private var listViewModel: TorrentListViewModel?
     @State private var showInspector = true
     @State private var isDropTargeted = false
+    @State private var columnVisibility: NavigationSplitViewVisibility = .all
 
     var body: some View {
         @Bindable var appState = appState
 
         VStack(spacing: 0) {
-            NavigationSplitView {
+            NavigationSplitView(columnVisibility: $columnVisibility) {
                 sidebar
                     .navigationSplitViewColumnWidth(min: 180, ideal: 180, max: 220)
             } detail: {
@@ -29,21 +30,20 @@ struct ContentView: View {
                     TorrentListView(viewModel: viewModel)
                 }
             }
-            .navigationSplitViewStyle(.prominentDetail)
+            .navigationSplitViewStyle(.automatic)
             .inspector(isPresented: $showInspector) {
-                Group {
-                    if let torrent = appState.selectedTorrent {
-                        TorrentDetailView(torrent: torrent, appState: appState)
-                    } else {
-                        EmptyStateView(
-                            symbolName: "sidebar.squares.right",
-                            title: "No Torrent Selected",
-                            subtitle: "Select a torrent from the list to see its details."
-                        )
-                    }
+                if let torrent = appState.selectedTorrent {
+                    TorrentDetailView(torrent: torrent, appState: appState)
+                } else {
+                    EmptyStateView(
+                        symbolName: "sidebar.squares.right",
+                        title: "No Torrent Selected",
+                        subtitle: "Select a torrent from the list to see its details."
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
-                .inspectorColumnWidth(min: 320, ideal: 420, max: 600)
             }
+            .inspectorColumnWidth(min: 320, ideal: 420, max: 600)
 
             StatusBarView()
         }
@@ -323,11 +323,11 @@ struct ContentView: View {
     }
 
     private func count(for filter: TorrentFilter) -> Int {
-        appState.torrents.filter { filter.matches($0) }.count
+        appState.filterCounts[filter] ?? 0
     }
 
     private func labelCount(for label: String) -> Int {
-        appState.torrents.filter { $0.labels.contains(label) }.count
+        appState.labelCounts[label] ?? 0
     }
 
     // MARK: - Drag and Drop
