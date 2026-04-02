@@ -205,6 +205,7 @@ struct ServersSettingsTab: View {
     @State private var selectedServerId: UUID?
     @State private var editingServer: ServerConfig?
     @State private var editingPassword: String = ""
+    @State private var editingProxyPassword: String = ""
     @State private var isTesting = false
     @State private var testResult: TestResult?
     @State private var showingDeleteConfirmation = false
@@ -467,6 +468,9 @@ struct ServersSettingsTab: View {
         .onChange(of: editingPassword) { _, _ in
             saveCurrentEdits()
         }
+        .onChange(of: editingProxyPassword) { _, _ in
+            saveCurrentEdits()
+        }
         .onChange(of: selectedServerId) { _, _ in
             sessionLoaded = false
             originalSession = nil
@@ -504,6 +508,26 @@ struct ServersSettingsTab: View {
                 }
             } header: {
                 Text("Authentication")
+            }
+
+            Section {
+                Picker("Proxy", selection: editingServerBinding.proxyType) {
+                    ForEach(ProxyType.allCases) { type in
+                        Text(type.label).tag(type)
+                    }
+                }
+
+                if editingServer?.proxyType != ProxyType.none {
+                    TextField("Proxy Host", text: editingServerBinding.proxyHost, prompt: Text("proxy.example.com"))
+                    TextField("Proxy Port", value: editingServerBinding.proxyPort, format: .number.grouping(.never))
+                    Toggle("Proxy Requires Authentication", isOn: editingServerBinding.proxyAuthRequired)
+                    if editingServer?.proxyAuthRequired == true {
+                        TextField("Proxy Username", text: editingServerBinding.proxyUsername)
+                        SecureField("Proxy Password", text: $editingProxyPassword)
+                    }
+                }
+            } header: {
+                Text("Proxy")
             }
 
             Section {
@@ -1215,8 +1239,10 @@ struct ServersSettingsTab: View {
         selectedServerId = id
         if var server = appState.sessionManager.servers.first(where: { $0.id == id }) {
             server.password = appState.sessionManager.password(for: id)
+            server.proxyPassword = appState.sessionManager.proxyPassword(for: id)
             editingServer = server
             editingPassword = server.password
+            editingProxyPassword = server.proxyPassword
         }
         testResult = nil
     }
@@ -1242,6 +1268,7 @@ struct ServersSettingsTab: View {
             appState.sessionManager.servers.contains(where: { $0.id == server.id })
         else { return }
         server.password = editingPassword
+        server.proxyPassword = editingProxyPassword
         appState.sessionManager.updateServer(server)
     }
 

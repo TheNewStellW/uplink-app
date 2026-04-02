@@ -86,6 +86,9 @@ final class TransmissionClient {
     /// Tracks the current trust policy so we can detect changes and recreate the session.
     private var currentAllowUntrustedCerts: Bool = false
 
+    /// Tracks the current proxy configuration so we can detect changes and recreate the session.
+    private var currentProxyFingerprint: String = ""
+
     init(sessionManager: SessionManager) {
         self.sessionManager = sessionManager
         let delegate = TrustAllCertsDelegate()
@@ -102,7 +105,8 @@ final class TransmissionClient {
     /// Clears the cached session ID. Call when switching servers.
     func clearSessionId() {
         sessionId = nil
-        // Invalidate the session to flush cached TLS state for the old server
+        currentProxyFingerprint = ""
+        // Invalidate the session to flush cached TLS and proxy state for the old server
         urlSession.invalidateAndCancel()
         urlSession = URLSession(
             configuration: .ephemeral,
@@ -431,16 +435,19 @@ final class TransmissionClient {
             throw TransmissionError.invalidURL
         }
 
-        // Update SSL trust policy for the active server.
-        // If the policy changed, recreate the session to flush any cached TLS state
-        // (e.g. a previous rejection of a self-signed cert).
+        // Detect if SSL trust or proxy config changed; if so, recreate the session.
         let newAllowUntrusted = server.useSSL && server.allowUntrustedCerts
-        if newAllowUntrusted != currentAllowUntrustedCerts {
+        let newProxyFingerprint = server.proxyFingerprint
+        let needsRecreation = (newAllowUntrusted != currentAllowUntrustedCerts)
+            || (newProxyFingerprint != currentProxyFingerprint)
+
+        if needsRecreation {
             currentAllowUntrustedCerts = newAllowUntrusted
+            currentProxyFingerprint = newProxyFingerprint
             sslDelegate.allowUntrustedCerts = newAllowUntrusted
             urlSession.invalidateAndCancel()
             urlSession = URLSession(
-                configuration: .ephemeral,
+                configuration: makeConfiguration(for: server),
                 delegate: sslDelegate,
                 delegateQueue: nil
             )
@@ -487,6 +494,54 @@ final class TransmissionClient {
         }
 
         return try handleResponse(data: data, httpResponse: httpResponse)
+    }
+
+    /// Creates an ephemeral URLSessionConfiguration with proxy settings from the given server.
+    private func makeConfiguration(for server: ServerConfig) -> URLSessionConfiguration {
+        let config = URLSessionConfiguration.ephemeral
+
+        switch server.proxyType {
+        case .none:
+            break
+
+        case .http:
+            var dict: [String: Any] = [
+                kCFNetworkProxiesHTTPEnable as String: true,
+                kCFNetworkProxiesHTTPProxy as String: server.proxyHost,
+                kCFNetworkProxiesHTTPPort as String: server.proxyPort,
+            ]
+            if server.proxyAuthRequired {
+                dict[kCFProxyUsernameKey as String] = server.proxyUsername
+                dict[kCFProxyPasswordKey as String] = server.proxyPassword
+            }
+            config.connectionProxyDictionary = dict
+
+        case .https:
+            var dict: [String: Any] = [
+                kCFNetworkProxiesHTTPSEnable as String: true,
+                kCFNetworkProxiesHTTPSProxy as String: server.proxyHost,
+                kCFNetworkProxiesHTTPSPort as String: server.proxyPort,
+            ]
+            if server.proxyAuthRequired {
+                dict[kCFProxyUsernameKey as String] = server.proxyUsername
+                dict[kCFProxyPasswordKey as String] = server.proxyPassword
+            }
+            config.connectionProxyDictionary = dict
+
+        case .socks5:
+            var dict: [String: Any] = [
+                kCFStreamPropertySOCKSProxyHost as String: server.proxyHost,
+                kCFStreamPropertySOCKSProxyPort as String: server.proxyPort,
+                kCFStreamPropertySOCKSVersion as String: kCFStreamSocketSOCKSVersion5,
+            ]
+            if server.proxyAuthRequired {
+                dict[kCFStreamPropertySOCKSUser as String] = server.proxyUsername
+                dict[kCFStreamPropertySOCKSPassword as String] = server.proxyPassword
+            }
+            config.connectionProxyDictionary = dict
+        }
+
+        return config
     }
 
     private nonisolated func performRequest(_ request: URLRequest) async throws -> (Data, URLResponse) {

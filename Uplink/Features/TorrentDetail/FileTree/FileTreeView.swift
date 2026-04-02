@@ -103,6 +103,7 @@ struct FileTreeNodeView: View {
             Button {
                 if let url = appState.resolveLocalPathWithAccess(remoteFilePath) {
                     NSWorkspace.shared.activateFileViewerSelecting([url])
+                    appState.sessionManager.stopSecurityScopedAccess()
                 }
             } label: {
                 Label("Show in Finder", systemImage: "folder")

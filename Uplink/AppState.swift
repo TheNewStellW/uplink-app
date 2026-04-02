@@ -817,6 +817,7 @@ final class AppState {
         guard let torrent = selectedTorrent else { return }
         guard let localURL = resolveLocalPathWithAccess(torrent.downloadDir) else { return }
         NSWorkspace.shared.open(localURL)
+        sessionManager.stopSecurityScopedAccess()
     }
 
     // MARK: - Torrent Addition

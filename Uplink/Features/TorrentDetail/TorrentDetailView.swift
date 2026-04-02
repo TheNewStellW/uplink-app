@@ -123,6 +123,7 @@ struct TorrentDetailView: View {
                 Button {
                     guard let localURL = appState.resolveLocalPathWithAccess(torrent.downloadDir) else { return }
                     NSWorkspace.shared.open(localURL)
+                    appState.sessionManager.stopSecurityScopedAccess()
                 } label: {
                     Image(systemName: "folder")
                         .font(.caption)

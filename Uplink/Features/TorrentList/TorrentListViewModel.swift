@@ -160,6 +160,7 @@ final class TorrentListViewModel {
     func openInFinder(torrent: Torrent) {
         guard let localURL = appState.resolveLocalPathWithAccess(torrent.downloadDir) else { return }
         NSWorkspace.shared.open(localURL)
+        appState.sessionManager.stopSecurityScopedAccess()
     }
 
     /// Whether the torrent's download directory can be resolved to a local path.

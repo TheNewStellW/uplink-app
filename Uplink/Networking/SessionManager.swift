@@ -20,6 +20,22 @@ struct PathMapping: Identifiable, Codable, Sendable, Equatable {
     }
 }
 
+/// The type of network proxy for RPC connections.
+enum ProxyType: String, Codable, CaseIterable, Identifiable, Sendable {
+    case none, http, https, socks5
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .none: String(localized: "None")
+        case .http: String(localized: "HTTP")
+        case .https: String(localized: "HTTPS")
+        case .socks5: String(localized: "SOCKS5")
+        }
+    }
+}
+
 /// Configuration for a single Transmission RPC server endpoint.
 struct ServerConfig: Identifiable, Codable, Sendable, Equatable {
     let id: UUID
@@ -32,13 +48,23 @@ struct ServerConfig: Identifiable, Codable, Sendable, Equatable {
     var authRequired: Bool
     var username: String
     var pathMappings: [PathMapping]
+    var proxyType: ProxyType
+    var proxyHost: String
+    var proxyPort: Int
+    var proxyAuthRequired: Bool
+    var proxyUsername: String
 
     /// Password is NOT stored here — it lives in the Keychain keyed by `id`.
     /// This transient property is used only while editing in the UI.
     var password: String = ""
 
+    /// Proxy password is NOT stored here — it lives in the Keychain keyed by `id`.
+    /// This transient property is used only while editing in the UI.
+    var proxyPassword: String = ""
+
     enum CodingKeys: String, CodingKey {
         case id, name, host, port, rpcPath, useSSL, allowUntrustedCerts, authRequired, username, pathMappings
+        case proxyType, proxyHost, proxyPort, proxyAuthRequired, proxyUsername
     }
 
     init(
@@ -52,7 +78,13 @@ struct ServerConfig: Identifiable, Codable, Sendable, Equatable {
         authRequired: Bool = false,
         username: String = "",
         password: String = "",
-        pathMappings: [PathMapping] = []
+        pathMappings: [PathMapping] = [],
+        proxyType: ProxyType = .none,
+        proxyHost: String = "",
+        proxyPort: Int = 8080,
+        proxyAuthRequired: Bool = false,
+        proxyUsername: String = "",
+        proxyPassword: String = ""
     ) {
         self.id = id
         self.name = name
@@ -65,6 +97,37 @@ struct ServerConfig: Identifiable, Codable, Sendable, Equatable {
         self.username = username
         self.password = password
         self.pathMappings = pathMappings
+        self.proxyType = proxyType
+        self.proxyHost = proxyHost
+        self.proxyPort = proxyPort
+        self.proxyAuthRequired = proxyAuthRequired
+        self.proxyUsername = proxyUsername
+        self.proxyPassword = proxyPassword
+    }
+
+    /// Custom decoder for backward compatibility — existing servers lack proxy keys.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        host = try container.decode(String.self, forKey: .host)
+        port = try container.decode(Int.self, forKey: .port)
+        rpcPath = try container.decode(String.self, forKey: .rpcPath)
+        useSSL = try container.decode(Bool.self, forKey: .useSSL)
+        allowUntrustedCerts = try container.decode(Bool.self, forKey: .allowUntrustedCerts)
+        authRequired = try container.decode(Bool.self, forKey: .authRequired)
+        username = try container.decode(String.self, forKey: .username)
+        pathMappings = try container.decode([PathMapping].self, forKey: .pathMappings)
+        proxyType = try container.decodeIfPresent(ProxyType.self, forKey: .proxyType) ?? .none
+        proxyHost = try container.decodeIfPresent(String.self, forKey: .proxyHost) ?? ""
+        proxyPort = try container.decodeIfPresent(Int.self, forKey: .proxyPort) ?? 8080
+        proxyAuthRequired = try container.decodeIfPresent(Bool.self, forKey: .proxyAuthRequired) ?? false
+        proxyUsername = try container.decodeIfPresent(String.self, forKey: .proxyUsername) ?? ""
+    }
+
+    /// A value summarising the proxy configuration, suitable for change detection.
+    var proxyFingerprint: String {
+        "\(proxyType.rawValue)|\(proxyHost)|\(proxyPort)|\(proxyAuthRequired)|\(proxyUsername)"
     }
 
     /// The fully constructed URL for the RPC endpoint.
@@ -107,6 +170,10 @@ final class SessionManager: Sendable {
     /// The UUID of the currently active server.
     private(set) var activeServerId: UUID?
 
+    /// Bookmark URLs whose security-scoped access has been started.
+    /// Kept alive so the sandbox grant persists until explicitly released.
+    private var activeSecurityScopedURLs: [URL] = []
+
     /// The currently active server configuration, with password loaded from Keychain.
     var activeServer: ServerConfig? {
         guard let id = activeServerId,
@@ -115,6 +182,7 @@ final class SessionManager: Sendable {
             return nil
         }
         server.password = Self.loadPassword(for: server.id)
+        server.proxyPassword = Self.loadProxyPassword(for: server.id)
         return server
     }
 
@@ -156,12 +224,21 @@ final class SessionManager: Sendable {
                 allowUntrustedCerts: server.allowUntrustedCerts,
                 authRequired: server.authRequired,
                 username: server.username,
-                password: server.password
+                password: server.password,
+                proxyType: server.proxyType,
+                proxyHost: server.proxyHost,
+                proxyPort: server.proxyPort,
+                proxyAuthRequired: server.proxyAuthRequired,
+                proxyUsername: server.proxyUsername,
+                proxyPassword: server.proxyPassword
             )
         }
 
         if newServer.authRequired {
             Self.savePassword(newServer.password, for: newServer.id)
+        }
+        if newServer.proxyAuthRequired {
+            Self.saveProxyPassword(newServer.proxyPassword, for: newServer.id)
         }
 
         servers.append(newServer)
@@ -185,6 +262,12 @@ final class SessionManager: Sendable {
             Self.deletePassword(for: server.id)
         }
 
+        if server.proxyAuthRequired {
+            Self.saveProxyPassword(server.proxyPassword, for: server.id)
+        } else {
+            Self.deleteProxyPassword(for: server.id)
+        }
+
         servers[index] = server
         persistServers()
     }
@@ -192,6 +275,7 @@ final class SessionManager: Sendable {
     /// Deletes a server by ID.
     func deleteServer(id: UUID) {
         Self.deletePassword(for: id)
+        Self.deleteProxyPassword(for: id)
         servers.removeAll { $0.id == id }
 
         if activeServerId == id {
@@ -214,23 +298,32 @@ final class SessionManager: Sendable {
         Self.loadPassword(for: serverId)
     }
 
+    /// Loads the proxy password for a server from the Keychain.
+    func proxyPassword(for serverId: UUID) -> String {
+        Self.loadProxyPassword(for: serverId)
+    }
+
     // MARK: - Path Mapping
 
     /// Resolves a remote path to a local file URL using the active server's path mappings.
     ///
     /// Finds the first mapping whose `remotePath` is a prefix of the given path,
     /// replaces the prefix with `localPath`, and returns the result as a file URL.
+    /// Trailing slashes are normalised so mappings work regardless of how the user entered them.
     /// Returns `nil` if no mapping matches.
     func resolveLocalPath(_ remotePath: String) -> URL? {
         guard let server = activeServer else { return nil }
+        let normalizedInput = remotePath.hasSuffix("/") ? String(remotePath.dropLast()) : remotePath
 
         for mapping in server.pathMappings {
-            let remote = mapping.remotePath
-            let local = mapping.localPath
+            let remote = mapping.remotePath.hasSuffix("/")
+                ? String(mapping.remotePath.dropLast()) : mapping.remotePath
+            let local = mapping.localPath.hasSuffix("/")
+                ? String(mapping.localPath.dropLast()) : mapping.localPath
             guard !remote.isEmpty, !local.isEmpty else { continue }
 
-            if remotePath.hasPrefix(remote) {
-                let suffix = String(remotePath.dropFirst(remote.count))
+            if normalizedInput == remote || normalizedInput.hasPrefix(remote + "/") {
+                let suffix = String(normalizedInput.dropFirst(remote.count))
                 let resolved = local + suffix
                 return URL(fileURLWithPath: resolved)
             }
@@ -241,17 +334,23 @@ final class SessionManager: Sendable {
     /// Starts security-scoped access for the mapping that matches the given remote path.
     ///
     /// Returns the resolved local URL with security access started, or `nil` if no mapping
-    /// matches or the bookmark is unavailable. Callers must call `stopAccessingSecurityScopedResource()`
-    /// on the returned URL when done (or rely on NSWorkspace which handles it internally).
+    /// matches or the bookmark is unavailable. The bookmark URL is stored in
+    /// `activeSecurityScopedURLs` so its scope stays alive; call `stopSecurityScopedAccess()`
+    /// to release all held scopes.
     func resolveLocalPathWithAccess(_ remotePath: String) -> URL? {
         guard let server = activeServer else { return nil }
+        let normalizedInput = remotePath.hasSuffix("/") ? String(remotePath.dropLast()) : remotePath
 
         for mapping in server.pathMappings {
-            let remote = mapping.remotePath
-            let local = mapping.localPath
+            let remote = mapping.remotePath.hasSuffix("/")
+                ? String(mapping.remotePath.dropLast()) : mapping.remotePath
+            let local = mapping.localPath.hasSuffix("/")
+                ? String(mapping.localPath.dropLast()) : mapping.localPath
             guard !remote.isEmpty, !local.isEmpty else { continue }
 
-            if remotePath.hasPrefix(remote) {
+            if normalizedInput == remote || normalizedInput.hasPrefix(remote + "/") {
+                let suffix = String(normalizedInput.dropFirst(remote.count))
+
                 // Try to resolve via security-scoped bookmark first
                 if let bookmarkData = mapping.bookmark {
                     var isStale = false
@@ -262,23 +361,33 @@ final class SessionManager: Sendable {
                         bookmarkDataIsStale: &isStale
                     ) {
                         if isStale {
-                            // Refresh the bookmark
                             refreshBookmark(for: mapping.id, url: bookmarkURL)
                         }
-                        _ = bookmarkURL.startAccessingSecurityScopedResource()
-                        let suffix = String(remotePath.dropFirst(remote.count))
-                        let resolved = bookmarkURL.appendingPathComponent(suffix)
-                        return resolved
+                        if bookmarkURL.startAccessingSecurityScopedResource() {
+                            activeSecurityScopedURLs.append(bookmarkURL)
+                        }
+                        // Build the resolved path as a plain file URL under the
+                        // now-accessible bookmark directory so the sandbox permits it.
+                        let resolvedPath = bookmarkURL.path + suffix
+                        return URL(fileURLWithPath: resolvedPath)
                     }
                 }
 
                 // Fall back to plain path (works outside sandbox or for already-permitted paths)
-                let suffix = String(remotePath.dropFirst(remote.count))
                 let resolved = local + suffix
                 return URL(fileURLWithPath: resolved)
             }
         }
         return nil
+    }
+
+    /// Stops security-scoped access for all bookmark URLs that were activated
+    /// by previous `resolveLocalPathWithAccess` calls.
+    func stopSecurityScopedAccess() {
+        for url in activeSecurityScopedURLs {
+            url.stopAccessingSecurityScopedResource()
+        }
+        activeSecurityScopedURLs.removeAll()
     }
 
     /// Creates a security-scoped bookmark for the given URL and stores it in the mapping.
@@ -395,6 +504,52 @@ final class SessionManager: Sendable {
 
     private static func deletePassword(for serverId: UUID) {
         let account = serverId.uuidString
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: account,
+        ]
+        SecItemDelete(query as CFDictionary)
+    }
+
+    // MARK: - Proxy Keychain Helpers
+
+    private static func saveProxyPassword(_ password: String, for serverId: UUID) {
+        guard let data = password.data(using: .utf8) else { return }
+        let account = serverId.uuidString + ".proxy"
+
+        deleteProxyPassword(for: serverId)
+
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: account,
+            kSecValueData as String: data,
+        ]
+        SecItemAdd(query as CFDictionary, nil)
+    }
+
+    private static func loadProxyPassword(for serverId: UUID) -> String {
+        let account = serverId.uuidString + ".proxy"
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: account,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne,
+        ]
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        guard status == errSecSuccess, let data = result as? Data,
+            let password = String(data: data, encoding: .utf8)
+        else {
+            return ""
+        }
+        return password
+    }
+
+    private static func deleteProxyPassword(for serverId: UUID) {
+        let account = serverId.uuidString + ".proxy"
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: keychainService,
